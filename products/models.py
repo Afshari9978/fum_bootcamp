@@ -21,6 +21,7 @@ class BrandPrize(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
+    is_public = models.BooleanField(blank=True, default=False)
 
 
 class Product(models.Model):
