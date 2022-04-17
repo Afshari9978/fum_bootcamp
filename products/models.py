@@ -11,6 +11,9 @@ class Brand(models.Model):
     description = models.TextField(blank=True)
     icon = models.ImageField(blank=True)
 
+    def __str__(self):
+        return self.name
+
 
 class BrandPrize(models.Model):
     brand = models.OneToOneField(Brand, on_delete=models.CASCADE)
@@ -23,13 +26,19 @@ class Category(models.Model):
     name = models.CharField(max_length=255)
     is_public = models.BooleanField(blank=True, default=False)
 
+    def __str__(self):
+        return self.name
+
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
+    search_keys = models.CharField(max_length=255, default="", blank=True)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
-    main_photo = models.ImageField(blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
+    main_photo = models.ImageField(blank=True, null=True)
     description = models.TextField(blank=True)
     quantity = models.IntegerField(blank=True, default=1, null=True)
+    is_deleted = models.BooleanField(default=False)
 
     date_created = models.DateTimeField(
         auto_now_add=True,
@@ -37,6 +46,9 @@ class Product(models.Model):
     date_updated = models.DateTimeField(
         auto_now=True
     )
+
+    def __str__(self):
+        return self.name
 
 
 class ProductPrice(models.Model):
