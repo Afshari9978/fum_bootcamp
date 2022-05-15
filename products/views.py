@@ -6,6 +6,7 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from products.models import Product, Brand
 from products.serializers import ProductSerializer, BrandSerializer
+from products.tasks import add
 
 
 def hello_world(request):
@@ -17,18 +18,10 @@ class ProductViewSet(ModelViewSet):
     serializer_class = ProductSerializer
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-
-        pk = 1
-        try:
-            product = Product.objects.get(id=pk)
-        except Product.DoesNotExist:
-            pass
-        except Product.MultipleObjectsReturned:
-            pass
+        queryset = super().get_queryset().select_related('brand', 'category')
 
         if self.action.startswith('public_'):
-            queryset = queryset.filter(category__is_public=True, is_deleted=False).select_related('category')
+            queryset = queryset.filter(category__is_public=True, is_deleted=False)
         if 'last_' in self.action:
             queryset = queryset.filter(quantity__lte=5)
         if self.action == 'search':
