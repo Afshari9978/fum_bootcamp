@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.http import HttpResponse
 from rest_framework import mixins
 from rest_framework.decorators import action
@@ -17,6 +18,14 @@ class ProductViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+
+        pk = 1
+        try:
+            product = Product.objects.get(id=pk)
+        except Product.DoesNotExist:
+            pass
+        except Product.MultipleObjectsReturned:
+            pass
 
         if self.action.startswith('public_'):
             queryset = queryset.filter(category__is_public=True, is_deleted=False).select_related('category')
@@ -53,6 +62,10 @@ class ProductViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
-class BrandViewSet(ModelViewSet):
+class BrandViewSet(mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   mixins.ListModelMixin,
+                   GenericViewSet):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
